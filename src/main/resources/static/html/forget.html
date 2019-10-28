@@ -1,0 +1,94 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>登录注册——修改密码</title>
+<link rel="stylesheet" type="text/css" href="../libs/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="../libs/css/style.css" />
+<link rel="stylesheet" type="text/css" href="../libs/css/pwd.css" />
+</head>
+
+<body class="login_body">
+	<div class="login_div">
+		<div class="col-xs-12 login_title">密码修改</div>
+			<div class="nav">
+				<div class="nav login_nav">
+					<div class="col-xs-4 login_username">用&nbsp;&nbsp;户&nbsp;&nbsp;名:</div>
+					<div class="col-xs-6 login_usernameInput">
+						<input type="text"  id="name"  style="font-size: 12px; height: 40px; outline: 0px; border-radius: 10px; border: 1px solid #CCCCCC; width: 95%;"
+							placeholder="&nbsp;&nbsp;用户名" />
+					</div>
+				</div>
+				<div class="nav login_psdNav">
+					<div class="col-xs-4">新&nbsp;&nbsp;密&nbsp;&nbsp;码:</div>
+					<div class="col-xs-6">
+						<input type="password" id="password"  style="height: 40px; font-size: 12px; outline: 0px; border-radius: 10px; border: 1px solid #CCCCCC; width: 95%;"
+							placeholder="&nbsp;&nbsp;新密码"  />
+						<span class="eyes">
+						    <img class="loginpsd none" style="margin-left: 98%;margin-top: -14%;" onclick="showPwd()" src="../libs/img/eye_open.png" alt="">
+						    <img class="loginpsdk" style="margin-left: 98%;margin-top: -14%;" onclick="hidePwd()" src="../libs/img/eyes_close.png" alt="">
+						</span>
+					</div>
+				</div>
+				<div class="nav login_psdNav">
+					<div class="col-xs-4">确认密码:</div>
+					<div class="col-xs-6">
+						<input type="password" id="repassword" style="height: 40px; font-size: 12px; outline: 0px; border-radius: 10px; border: 1px solid #CCCCCC; width: 95%;"
+							placeholder="&nbsp;&nbsp;确认新密码"
+							 />
+					</div>
+				</div>
+				<div class="col-xs-12 login_btn_div">
+					<input type="button"  class="sub_btn" onclick="checkUpdate()" value="修改" id="login" />
+				</div>
+			</div>
+	</div>
+
+<script src="../libs/js/jquery-3.4.1.min.js"></script>
+<script src="../libs/js/jquery.serializeJson.js"></script>
+<script type="text/javascript">
+	
+	function checkUpdate(){
+		if($("#name").val()==''||$("#password").val()==''||$("#repassword").val()==''){
+			alert("必填项不能为空！")
+		}else{
+			$.ajax({
+				url:"/checkUpdate",
+				type:"POST",
+				data:"username="+$("#name").val()+"&password="+$("#password").val(),
+				success:function(data){
+					console.log(data);
+					if(data){
+						alert("当前密码修改完成，点击去登录...");
+						window.location.replace("demo.html");
+					}else{
+						$("#name").val("");
+						alert("当前账户不存在！");
+					}
+				}
+			});
+		}
+		
+	}
+	
+	
+	//密文显示密码
+	function showPwd(){
+		
+		$(".loginpsd").css("display","none");
+		$(".loginpsdk").css("display","inline-block");
+		$("#loginPsd").attr("type","password");
+		
+	}
+	//明文显示密码
+	function hidePwd(){
+		
+		$(".loginpsd").css("display","block");
+		$(".loginpsdk").css("display","none");
+		$("#loginPsd").attr("type","text");
+	}
+	
+
+</script>
+</body>
+
+</html>

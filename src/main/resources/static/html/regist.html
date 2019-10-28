@@ -1,0 +1,300 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>登录注册界面</title>
+<link rel="stylesheet" type="text/css" href="../libs/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="../libs/css/style.css" />
+<link rel="stylesheet" type="text/css" href="../libs/css/pwd.css" />
+<script src="../libs/js/jquery-3.4.1.min.js"></script>
+<script src="../libs/js/jquery.serializeJson.js"></script>
+<script type="text/javascript">
+
+	//手机号码校验
+	function validateTel(){
+	 	var phone = document.getElementById('tel').value;
+	 	
+	    if(!(/^1[3|4|5|7|8]\d{9}$/.test(phone))){ 
+	        alert("手机号码有误，请重填");  
+	        return false; 
+	    } else{
+	    	$(".val").css("display","block");
+	    }
+	}
+
+	//倒计时
+	var code;
+	var wait=60;
+    function getValidate(time) {
+        if (wait == 1) {
+            $("#validate").val("重新获取");
+            $("#validate").attr("disabled", false);
+            wait = 60;
+            return;
+        } else {
+            $("#validate").attr("disabled", true);
+            $("#validate").val("("+(--wait)+")s");
+        }
+        setTimeout(function() {
+            getValidate(time);
+        },1000)
+    }
+    //获取验证码
+    function setTimeValidate(){
+        $("#validation").css("display","block");
+        $("#valid").css("display","block");
+        $("#register").css("margin-top","7%");
+        $("#register").css("transition","1s");
+        $.ajax({
+			url:"/getValidate",
+			type:"GET",
+			data:"tel="+$("#tel").val(),
+			success:function(data){
+				//console.log(data);
+				code = data;
+			}
+		});
+	}
+
+	//验证用户名是否可用
+	function checkName(){
+		if($("#name_r").val()==''||$("#name_r").val()==undefined){
+			alert("用户名不能为空");
+			$("#name_r").css("border-color","red");
+		}else{
+
+			// alert("test ajax！！！")
+			$.ajax({
+				url:"/checkName",
+				type:"post",
+				data:'{"username":"'+$("#name_r").val()+'"}',
+				contentType:"application/json",
+				success:function(data){
+					console.log(data);
+					if(!data){
+						// alert("可以使用的用户名");
+						$("#name_r").css("border-color","lightgreen");
+					}else{
+						alert("此用户名已被注册");
+						$("#name_r").css("border-color","red");
+					}
+				}
+			});
+		}
+		
+	}
+	//点击用户名的时候取消样式
+	function canelName(){
+		$("#name_r").css("border-color","#ccc");
+	}
+	
+
+	//重复密码的校验 
+	function checkPwd(){
+		var pwd_first = $("#psd_r").val();
+		var pwd_second = $("#psd_repeat").val();
+		if(pwd_first==pwd_second){
+			$("#psd_r").css("border-color","lightgreen");
+			$("#psd_repeat").css("border-color","lightgreen");
+		}else{
+			alert("两次密码不一致");
+			$("#psd_r").css("border-color","red");
+			$("#psd_repeat").css("border-color","red");
+		}
+	}
+	//点击密码的时候取消样式
+	function canelPwd(){
+		$("#psd_r").css("border-color","#ccc");
+	}
+	//点击重复密码的时候取消样式
+	function canelRePwd(){
+		$("#psd_repeat").css("border-color","#ccc");
+	}
+	
+	//密文显示密码
+	function showPwd(){
+		//注册
+		$(".secreteyes").css("display","none");
+		$(".secreteyesk").css("display","inline-block");
+		$("#psd_r").attr("type","password");
+		//登录
+		$(".loginpsd").css("display","none");
+		$(".loginpsdk").css("display","inline-block");
+		$("#loginPsd").attr("type","password");
+		
+	}
+	//明文显示密码
+	function hidePwd(){
+		//注册
+		$(".secreteyes").css("display","block");
+		$(".secreteyesk").css("display","none");
+		$("#psd_r").attr("type","text");
+		//登录
+		$(".loginpsd").css("display","block");
+		$(".loginpsdk").css("display","none");
+		$("#loginPsd").attr("type","text");
+	}
+	
+	//校验验证码
+	function checkValid(){
+		var validInput = $("#valid").val();
+		if(code==validInput){
+			$("#valid").css("boder-color","lightgreen");
+		}else{
+			if(code==undefined){
+				alert("请输入手机号码获取验证码！");
+			}else{
+				$("#valid").css("boder-color","red");
+				alert("验证码错误！");
+			}
+		}
+	}
+	//注册
+	function regist(){
+		if($("#name_r").val()==''||$("#psd_r").val()==''||$("#tel").val()==''){
+			alert("请填写完整的数据");
+		}else{
+			$.ajax({
+				url:"/regist",
+				type:"post",
+				data:'{"username":"'+$("#name_r").val()+'","password":"'+$("#psd_r").val()+'","userphone":"'+$("#tel").val()+'"}',
+				contentType:"application/json",
+				success:function(data){
+					console.log(data);
+					if(data){
+
+						window.location.replace("demo.html");
+					}
+				}
+			});
+		}
+	}
+
+	function ok_or_errorBylogin(l) {
+		var content = $(l).val();
+		if (content != "") {
+			$(l).parent().next().next().css("display", "none");
+		}
+	}
+	function barter_btn(bb) {
+		$(bb).parent().parent().fadeOut(1000);
+		$(bb).parent().parent().siblings().fadeIn(2500);
+	}
+
+</script>
+</head>
+
+<body>
+
+<div class="login_div">
+	<div class="col-xs-12 login_title">登录</div>
+	<form id="form"  >
+		<div class="nav">
+			<div class="nav login_nav">
+				<div class="col-xs-4 login_username">用户名:</div>
+				<div class="col-xs-6 login_usernameInput">
+					<input type="text"  id="loginName"
+						   placeholder="&nbsp;&nbsp;用户名"
+					/>
+				</div>
+			</div>
+			<div class="nav login_psdNav">
+				<div class="col-xs-4">密&nbsp;&nbsp;&nbsp;码:</div>
+				<div class="col-xs-6">
+					<input type="password" id="loginPsd"
+						   placeholder="&nbsp;&nbsp;密码"
+					/>
+					<span class="eyes">
+						    <img class="loginpsd none" style="margin-left: 98%;margin-top: -14%;" onclick="showPwd()" src="../libs/img/eye_open.png" alt="">
+						    <img class="loginpsdk" style="margin-left: 98%;margin-top: -14%;" onclick="hidePwd()" src="../libs/img/eyes_close.png" alt="">
+						</span>
+				</div>
+			</div>
+			<div>
+					<span>
+						<input style="width: 15px;margin-left: 33%;margin-top: 6%;" type="checkbox" id="remember"/>
+						<label style="font-size: 16px;
+    color: rgb(79,129,178);
+    margin-right: 20%;" for="remember">记住密码</label>
+					</span>
+				<span>
+						<a href="forget.html">忘记密码</a>
+					</span>
+			</div>
+			<div class="col-xs-12 login_btn_div">
+				<input type="button" onclick="checkLogin()" class="sub_btn" value="登录" id="login" />
+			</div>
+		</div>
+	</form>
+
+	<div class="col-xs-12 barter_btnDiv">
+		<button class="barter_btn" onClick="javascript:barter_btn(this)">没有账号?前往注册</button>
+	</div>
+</div>
+
+<div class="register_body">
+	<div class="col-xs-12 register_title">注册</div>
+	<form>
+		<div class="nav">
+			<div class="nav register_nav">
+				<div class="col-xs-4">用户名:</div>
+				<div class="col-xs-6">
+					<input type="text" name="" id="name_r" value=""
+						   placeholder="&nbsp;&nbsp;用户名"
+						   onblur="checkName()" onfocus="canelName()"/>
+				</div>
+			</div>
+			<div class="nav register_nav">
+				<div class="col-xs-4">密&nbsp;&nbsp;&nbsp;码:</div>
+				<div class="col-xs-6">
+					<input type="password" name="" id="psd_r" value=""
+						   placeholder="&nbsp;&nbsp;密码"
+						   onfocus="canelPwd()" />
+					<span class="eyes">
+						    <img class="secreteyes none" onclick="showPwd()" src="../libs/img/eye_open.png" alt="">
+						    <img class="secreteyesk" onclick="hidePwd()" src="../libs/img/eyes_close.png" alt="">
+						</span>
+				</div>
+
+			</div>
+			<div class="nav register_nav">
+				<div class="col-xs-4">确认密码:</div>
+				<div class="col-xs-6">
+					<input type="password" name="" id="psd_repeat" value=""
+						   placeholder="&nbsp;&nbsp;确认密码"
+						   onblur="checkPwd()"
+						   onfocus="canelRePwd()"/>
+				</div>
+			</div>
+			<div class="nav register_nav">
+				<div class="col-xs-4">手机号码:</div>
+				<div class="col-xs-6">
+					<input type="text" name="" id="tel" onblur="validateTel()"
+						   placeholder="&nbsp;&nbsp;手机号"/>
+
+				</div>
+				<div>
+					<input class="val" type="button" id="validate" value="获取验证码" onclick="getValidate()" onblur="setTimeValidate()" />
+				</div>
+
+			</div>
+			<div class="nav register_nav">
+				<div id="validation" style="display: none" class="col-xs-4">验证码:</div>
+				<div class="col-xs-6">
+					<input type="text" name="" id="valid"  style="display: none"
+						   placeholder="&nbsp;&nbsp;验证码"
+						   onblur="checkValid()" />
+				</div>
+			</div>
+			<div class="col-xs-12 ">
+				<input type="button" onclick="regist()" style="margin-left: 30%;margin-top: -5%;" class="sub_btn"  value="注册" id="register" />
+				<br/><br/><a href="regist.html" style="margin-left: 40%">已有账号，前去登录</a>
+			</div>
+		</div>
+	</form>
+</div>
+
+
+
+</body>
+
+</html>
